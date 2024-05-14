@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "./components/ui/button";
 import { getImages } from "./http/api";
 import toast from "react-hot-toast";
-import { DownloadIcon } from "lucide-react";
+import { ClipboardCopyIcon, DownloadIcon } from "lucide-react";
 import { saveAs } from "file-saver";
 
 type ImageData = {
@@ -21,7 +21,6 @@ type ImageData = {
 const App = () => {
   const [imageData, setImageData] = useState<ImageData | null>(null);
   const [loading, setLoading] = useState(false);
-  const [downloaded, setDownloaded] = useState(false);
 
   const handleClick = async () => {
     try {
@@ -46,12 +45,7 @@ const App = () => {
     if (!imageData) {
       toast.error("No Image Data Found");
     } else {
-      setDownloaded(false);
       saveAs(imageData.urls.full, `${imageData.alternative_slugs.en}.jpg`);
-      setDownloaded(true);
-      if (downloaded) {
-        toast.success("Image Downloaded Successfully!");
-      }
     }
   };
 
@@ -118,6 +112,7 @@ const App = () => {
                   className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50"
                   variant="outline"
                 >
+                  <ClipboardCopyIcon className=" mr-2 h-4 w-4" />
                   Copy Link
                 </Button>
                 <Button
@@ -125,7 +120,7 @@ const App = () => {
                   className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50"
                   variant="outline"
                 >
-                  <DownloadIcon className="h-4 w-4" />
+                  <DownloadIcon className=" mr-2 h-4 w-4" />
                   Download
                 </Button>
               </div>
