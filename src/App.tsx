@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Button } from "./components/ui/button";
 import { getImages } from "./http/api";
 import toast from "react-hot-toast";
+import { DownloadIcon } from "lucide-react";
+import { saveAs } from "file-saver";
 
 type ImageData = {
   alt_description: string;
@@ -9,16 +11,25 @@ type ImageData = {
     full: string;
     regular: string;
   };
+  links: {
+    download: string;
+  };
+  alternative_slugs: {
+    en: string;
+  };
 };
 const App = () => {
   const [imageData, setImageData] = useState<ImageData | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [downloaded, setDownloaded] = useState(false);
 
   const handleClick = async () => {
     try {
+      setLoading(true);
       const response = await getImages();
       const data = response.data;
-      console.log(data);
       setImageData(data);
+      setLoading(false);
     } catch (error) {
       toast.error("Error fetching images: " + (error as Error).message);
     }
@@ -29,6 +40,18 @@ const App = () => {
     } else {
       navigator.clipboard.writeText(imageData.urls.full);
       toast.success("Link Copied to Clipboard");
+    }
+  };
+  const downloadImage = () => {
+    if (!imageData) {
+      toast.error("No Image Data Found");
+    } else {
+      setDownloaded(false);
+      saveAs(imageData.urls.full, `${imageData.alternative_slugs.en}.jpg`);
+      setDownloaded(true);
+      if (downloaded) {
+        toast.success("Image Downloaded Successfully!");
+      }
     }
   };
 
@@ -54,12 +77,21 @@ const App = () => {
           with ❤️
         </p>
         <div className="flex justify-center">
-          <Button
-            onClick={handleClick}
-            className="bg-gray-900 hover:bg-gray-800 text-gray-50 dark:bg-gray-50 dark:text-gray-900 dark:hover:bg-gray-200"
-          >
-            Get Image
-          </Button>
+          {loading ? (
+            <Button
+              disabled
+              className="bg-gray-900 hover:bg-gray-800 text-gray-50 dark:bg-gray-50 dark:text-gray-900 dark:hover:bg-gray-200"
+            >
+              Loading
+            </Button>
+          ) : (
+            <Button
+              onClick={handleClick}
+              className="bg-gray-900 hover:bg-gray-800 text-gray-50 dark:bg-gray-50 dark:text-gray-900 dark:hover:bg-gray-200"
+            >
+              Get Image
+            </Button>
+          )}
         </div>
       </div>
       {imageData && (
@@ -80,13 +112,23 @@ const App = () => {
               <p className="text-gray-600 dark:text-gray-400">
                 {imageData.alt_description || "No Description"}
               </p>
-              <Button
-                onClick={copyLink}
-                className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50"
-                variant="outline"
-              >
-                Copy Link
-              </Button>
+              <div className="flex items-center space-x-2">
+                <Button
+                  onClick={copyLink}
+                  className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50"
+                  variant="outline"
+                >
+                  Copy Link
+                </Button>
+                <Button
+                  onClick={downloadImage}
+                  className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50"
+                  variant="outline"
+                >
+                  <DownloadIcon className="h-4 w-4" />
+                  Download
+                </Button>
+              </div>
             </div>
           </div>
         </div>
