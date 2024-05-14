@@ -92,7 +92,7 @@ const App = () => {
         <div className="mt-12 w-full max-w-3xl">
           <div className="rounded-lg border border-gray-200 dark:border-gray-800 overflow-hidden">
             <img
-              alt="Random Image"
+              alt={imageData.alternative_slugs.en}
               className="w-full h-auto"
               height="400"
               src={imageData.urls.regular}
